@@ -1,0 +1,15 @@
+{
+  "name": "langton",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@e3o/bun-builder-plugins": "^0.1.9"
+  }
+}
