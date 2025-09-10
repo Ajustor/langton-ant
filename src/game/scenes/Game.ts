@@ -2,7 +2,7 @@ import { Scene } from 'phaser'
 import { Cell } from '../type'
 import { swapColor } from '../systems/langton'
 
-const PADDING = 10
+const PADDING = 1
 
 const WINDOW_CENTER_X = window.innerWidth / 2
 const WINDOW_CENTER_Y = window.innerHeight / 2
@@ -10,7 +10,7 @@ const WINDOW_CENTER_Y = window.innerHeight / 2
 const ACTIVE_COLOR = 0xffffff
 const INACTIVE_COLOR = 0x000000
 
-const PIXEL_SIZE = 30
+const PIXEL_SIZE = 10
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera
@@ -28,7 +28,7 @@ export class Game extends Scene {
         for (const y of this.matrix.keys()) {
             for (const x of this.matrix[y].keys()) {
                 const cell = this.matrix[y][x]
-                cell.pixel = this.add.rectangle(WINDOW_CENTER_X - (WINDOW_CENTER_X / 2) + x + PADDING + (PIXEL_SIZE), WINDOW_CENTER_Y - (WINDOW_CENTER_Y / 2) + y + PADDING + (PIXEL_SIZE), PIXEL_SIZE, PIXEL_SIZE, cell.value ? ACTIVE_COLOR : INACTIVE_COLOR)
+                cell.pixel = this.add.rectangle((WINDOW_CENTER_X / 2) + x * (PIXEL_SIZE + PADDING), (WINDOW_CENTER_Y / 2) + y * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, cell.value ? ACTIVE_COLOR : INACTIVE_COLOR)
                 cell.pixel.setInteractive().on('pointerdown', () => {
                     swapColor(cell)
                 })
