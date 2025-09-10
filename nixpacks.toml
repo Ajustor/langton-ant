@@ -1,8 +1,8 @@
 [phases.setup]
-nixPkgs = ['bun']
+nixPkgs = ['bun', 'nodejs']
 
 [phases.install]
-cmds = ['bun i']
+cmds = ['bun install']
 
 [phases.build]
 cmds = ['bun run build-nolog']
