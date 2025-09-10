@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package.json bun.lockb tsconfig.json ./
 
 # Installe les dépendances
-RUN bun install --frozen-lockfile --production
+RUN bun install --production
 
 # Copie le reste du projet
 COPY . .
