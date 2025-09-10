@@ -2,7 +2,7 @@
 nixPkgs = ['bun', 'nodejs']
 
 [phases.install]
-cmds = ['bun install']
+cmds = ['bun --version','bun install']
 
 [phases.build]
 cmds = ['bun run build-nolog']
