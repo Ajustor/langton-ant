@@ -13,5 +13,5 @@ RUN bun install --frozen-lockfile --production
 COPY . .
 
 # Build le projet
-RUN bun run build:no-log
+RUN bun run build-nolog
 
