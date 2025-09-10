@@ -6,3 +6,6 @@ cmds = ['bun install']
 
 [phases.build]
 cmds = ['bun run build-nolog']
+
+[start]
+cmd = 'bun dev'
