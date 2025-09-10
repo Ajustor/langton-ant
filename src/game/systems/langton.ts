@@ -1,3 +1,4 @@
+import { MATRIX_SIZE } from '../scenes/Game'
 import { Ant, Cell, Direction } from '../type'
 
 export function swapColor(cell: Cell) {
@@ -15,10 +16,32 @@ export function setAntDirection(ant: Ant, cell: Cell) {
 export function moveAnt(ant: Ant) {
   switch (ant.direction) {
     case Direction.LEFT:
-      ant.x -= 1
+      if (ant.x > 0) {
+        ant.x -= 1
+      } else {
+        ant.x = MATRIX_SIZE - 1
+      }
       break
     case Direction.RIGHT:
-      ant.x += 1
+      if (ant.x < MATRIX_SIZE - 1) {
+        ant.x += 1
+      } else {
+        ant.x = 0
+      }
+      break
+    case Direction.UP:
+      if (ant.y > 0) {
+        ant.y -= 1
+      } else {
+        ant.y = MATRIX_SIZE - 1
+      }
+      break
+    case Direction.DOWN:
+      if (ant.y < MATRIX_SIZE - 1) {
+        ant.y += 1
+      } else {
+        ant.y = 0
+      }
       break
   }
 }

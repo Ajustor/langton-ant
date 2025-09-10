@@ -1,26 +1,32 @@
 import { Scene } from 'phaser'
-import { Cell } from '../type'
-import { swapColor } from '../systems/langton'
+import { Ant, Cell, Direction } from '../type'
+import { moveAnt, setAntDirection, swapColor } from '../systems/langton'
+import { wait } from '../systems/tools'
 
 const PADDING = 1
 
 const WINDOW_CENTER_X = window.innerWidth / 2
 const WINDOW_CENTER_Y = window.innerHeight / 2
 
-const ACTIVE_COLOR = 0xffffff
-const INACTIVE_COLOR = 0x000000
+const ACTIVE_COLOR = 0x000000
+const INACTIVE_COLOR = 0xffffff
 
 const PIXEL_SIZE = 10
+
+export const MATRIX_SIZE = 50
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera
     private matrix: Cell[][]
+    private isPaused = false
+
+    private ant: Ant
 
     constructor() {
         super('Game')
 
-        this.matrix = Array.from({ length: 50 }, () =>
-            Array.from({ length: 50 }, () => ({ value: 0, occupant: null, pixel: undefined }))
+        this.matrix = Array.from({ length: MATRIX_SIZE }, () =>
+            Array.from({ length: MATRIX_SIZE }, () => ({ value: 0, occupant: null, pixel: undefined }))
         )
     }
 
@@ -34,6 +40,8 @@ export class Game extends Scene {
                 })
             }
         }
+
+        this.ant = { direction: Direction.DOWN, x: MATRIX_SIZE / 2, y: MATRIX_SIZE / 2, sprite: this.add.rectangle((WINDOW_CENTER_X / 2) + (MATRIX_SIZE / 2) * (PIXEL_SIZE + PADDING), (WINDOW_CENTER_Y / 2) + (MATRIX_SIZE / 2) * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, 0xff0000) }
     }
 
     create() {
@@ -42,15 +50,28 @@ export class Game extends Scene {
 
         this.initGrid()
 
+        this.time.addEvent({
+            delay: 250,
+            loop: true,
+            callback: this.calculateAnt,
+            callbackScope: this
+        })
 
-        this.input.on('pointerdown', (event: PointerEvent) => {
+        this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
 
-            console.log(event)
+            if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.SPACE) {
+                this.isPaused = !this.isPaused
+            }
+
 
         })
     }
 
-    update(time: number, delta: number): void {
+    async update(time: number, delta: number): Promise<void> {
+        if (this.isPaused) {
+            return
+        }
+
         for (const row of this.matrix) {
             for (const cell of row) {
                 if (cell.pixel) {
@@ -59,5 +80,17 @@ export class Game extends Scene {
             }
         }
 
+    }
+
+    private calculateAnt() {
+        if (this.isPaused) {
+            return
+        }
+        setAntDirection(this.ant, this.matrix[this.ant.y][this.ant.x])
+        swapColor(this.matrix[this.ant.y][this.ant.x])
+        moveAnt(this.ant)
+
+        this.ant.sprite.x = (WINDOW_CENTER_X / 2) + this.ant.x * (PIXEL_SIZE + PADDING)
+        this.ant.sprite.y = (WINDOW_CENTER_Y / 2) + this.ant.y * (PIXEL_SIZE + PADDING)
     }
 }
