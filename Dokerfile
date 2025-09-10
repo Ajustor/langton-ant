@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package.json bun.lockb tsconfig.json ./
 
 # Installe les dépendances
-RUN bun install --production
+RUN bun install
 
 # Copie le reste du projet
 COPY . .
