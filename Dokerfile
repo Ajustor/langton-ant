@@ -1,0 +1,17 @@
+# Dockerfile
+FROM oven/bun as build
+
+WORKDIR /app
+
+# Copie les fichiers de configuration
+COPY package.json bun.lockb tsconfig.json ./
+
+# Installe les dépendances
+RUN bun install --frozen-lockfile --production
+
+# Copie le reste du projet
+COPY . .
+
+# Build le projet
+RUN bun run build
+
