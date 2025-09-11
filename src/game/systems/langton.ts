@@ -1,7 +1,8 @@
 import { MATRIX_HEIGHT, MATRIX_WIDTH } from '../scenes/Game'
 import { Ant, Cell, Direction } from '../type'
 
-export function swapColor(cell: Cell) {
+export function swapColor(cell: Cell, newColor: number) {
+  cell.color = newColor
   cell.value ^= 1
 }
 

@@ -4,6 +4,9 @@ import { Game as MainGame } from './scenes/Game'
 import { MainMenu } from './scenes/MainMenu'
 import { AUTO, Game } from 'phaser'
 import { Preloader } from './scenes/Preloader'
+import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin'
+
+
 
 // Find out more information about the Game Config at:
 // https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
@@ -13,13 +16,24 @@ const config: Phaser.Types.Core.GameConfig = {
     height: window.innerHeight,
     parent: 'game-container',
     backgroundColor: '#028af8',
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+    },
     scene: [
         Boot,
         Preloader,
         MainMenu,
         MainGame,
         GameOver
-    ]
+    ],
+    plugins: {
+        scene: [{
+            key: 'rexUI',
+            plugin: UIPlugin,
+            mapping: 'rexUI'
+        }]
+    }
 }
 
 const StartGame = (parent: string) => {
