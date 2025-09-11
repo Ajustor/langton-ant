@@ -1,19 +1,16 @@
 import { Scene } from 'phaser'
 import { Ant, Cell, Direction } from '../type'
 import { moveAnt, setAntDirection, swapColor } from '../systems/langton'
-import { wait } from '../systems/tools'
 
 const PADDING = 1
-
-const WINDOW_CENTER_X = window.innerWidth / 2
-const WINDOW_CENTER_Y = window.innerHeight / 2
 
 const ACTIVE_COLOR = 0x000000
 const INACTIVE_COLOR = 0xffffff
 
 const PIXEL_SIZE = 10
 
-export const MATRIX_SIZE = 100
+export const MATRIX_WIDTH = ~~(window.innerWidth / (PIXEL_SIZE))
+export const MATRIX_HEIGHT = ~~(window.innerHeight / (PIXEL_SIZE))
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera
@@ -25,8 +22,8 @@ export class Game extends Scene {
     constructor() {
         super('Game')
 
-        this.matrix = Array.from({ length: MATRIX_SIZE }, () =>
-            Array.from({ length: MATRIX_SIZE }, () => ({ value: 0, occupant: null, pixel: undefined }))
+        this.matrix = Array.from({ length: MATRIX_HEIGHT }, () =>
+            Array.from({ length: MATRIX_WIDTH }, () => ({ value: 0, occupant: null, pixel: undefined }))
         )
     }
 
@@ -34,14 +31,14 @@ export class Game extends Scene {
         for (const y of this.matrix.keys()) {
             for (const x of this.matrix[y].keys()) {
                 const cell = this.matrix[y][x]
-                cell.pixel = this.add.rectangle((WINDOW_CENTER_X / 2) + x * (PIXEL_SIZE + PADDING), y * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, cell.value ? ACTIVE_COLOR : INACTIVE_COLOR)
+                cell.pixel = this.add.rectangle(x * (PIXEL_SIZE + PADDING), y * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, cell.value ? ACTIVE_COLOR : INACTIVE_COLOR)
                 cell.pixel.setInteractive().on('pointerdown', () => {
                     swapColor(cell)
                 })
             }
         }
 
-        this.ant = { direction: Direction.DOWN, x: MATRIX_SIZE / 2, y: MATRIX_SIZE / 2, sprite: this.add.rectangle((WINDOW_CENTER_X / 2) + (MATRIX_SIZE / 2) * (PIXEL_SIZE + PADDING), (MATRIX_SIZE / 2) * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, 0xff0000) }
+        this.ant = { direction: Direction.DOWN, x: ~~(MATRIX_WIDTH / 2), y: ~~(MATRIX_HEIGHT / 2), sprite: this.add.rectangle((~~(MATRIX_WIDTH / 2)) * (PIXEL_SIZE + PADDING), (~~(MATRIX_HEIGHT / 2)) * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, 0xff0000) }
     }
 
     create() {
@@ -65,13 +62,10 @@ export class Game extends Scene {
 
 
         })
+
     }
 
     async update(time: number, delta: number): Promise<void> {
-        if (this.isPaused) {
-            return
-        }
-
         for (const row of this.matrix) {
             for (const cell of row) {
                 if (cell.pixel) {
@@ -90,7 +84,7 @@ export class Game extends Scene {
         swapColor(this.matrix[this.ant.y][this.ant.x])
         moveAnt(this.ant)
 
-        this.ant.sprite.x = (WINDOW_CENTER_X / 2) + this.ant.x * (PIXEL_SIZE + PADDING)
+        this.ant.sprite.x = this.ant.x * (PIXEL_SIZE + PADDING)
         this.ant.sprite.y = this.ant.y * (PIXEL_SIZE + PADDING)
     }
 }
