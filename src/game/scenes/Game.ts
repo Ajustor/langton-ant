@@ -51,7 +51,7 @@ export class Game extends Scene {
         this.initGrid()
 
         this.time.addEvent({
-            delay: 250,
+            delay: 1,
             loop: true,
             callback: this.calculateAnt,
             callbackScope: this
