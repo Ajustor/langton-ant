@@ -34,14 +34,14 @@ export class Game extends Scene {
         for (const y of this.matrix.keys()) {
             for (const x of this.matrix[y].keys()) {
                 const cell = this.matrix[y][x]
-                cell.pixel = this.add.rectangle((WINDOW_CENTER_X / 2) + x * (PIXEL_SIZE + PADDING), (WINDOW_CENTER_Y / 2) + y * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, cell.value ? ACTIVE_COLOR : INACTIVE_COLOR)
+                cell.pixel = this.add.rectangle((WINDOW_CENTER_X / 2) + x * (PIXEL_SIZE + PADDING), y * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, cell.value ? ACTIVE_COLOR : INACTIVE_COLOR)
                 cell.pixel.setInteractive().on('pointerdown', () => {
                     swapColor(cell)
                 })
             }
         }
 
-        this.ant = { direction: Direction.DOWN, x: MATRIX_SIZE / 2, y: MATRIX_SIZE / 2, sprite: this.add.rectangle((WINDOW_CENTER_X / 2) + (MATRIX_SIZE / 2) * (PIXEL_SIZE + PADDING), (WINDOW_CENTER_Y / 2) + (MATRIX_SIZE / 2) * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, 0xff0000) }
+        this.ant = { direction: Direction.DOWN, x: MATRIX_SIZE / 2, y: MATRIX_SIZE / 2, sprite: this.add.rectangle((WINDOW_CENTER_X / 2) + (MATRIX_SIZE / 2) * (PIXEL_SIZE + PADDING), (MATRIX_SIZE / 2) * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, 0xff0000) }
     }
 
     create() {
@@ -91,6 +91,6 @@ export class Game extends Scene {
         moveAnt(this.ant)
 
         this.ant.sprite.x = (WINDOW_CENTER_X / 2) + this.ant.x * (PIXEL_SIZE + PADDING)
-        this.ant.sprite.y = (WINDOW_CENTER_Y / 2) + this.ant.y * (PIXEL_SIZE + PADDING)
+        this.ant.sprite.y = this.ant.y * (PIXEL_SIZE + PADDING)
     }
 }
