@@ -13,7 +13,7 @@ const INACTIVE_COLOR = 0xffffff
 
 const PIXEL_SIZE = 10
 
-export const MATRIX_SIZE = 50
+export const MATRIX_SIZE = 100
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera
