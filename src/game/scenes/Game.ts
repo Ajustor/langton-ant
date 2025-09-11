@@ -20,7 +20,7 @@ export class Game extends Scene {
     private matrix: Cell[][]
     private isPaused = false
 
-    private ant: Ant
+    private ants: Ant[] = []
 
     constructor() {
         super('Game')
@@ -41,7 +41,6 @@ export class Game extends Scene {
             }
         }
 
-        this.ant = { direction: Direction.DOWN, x: ~~(MATRIX_WIDTH / 2), y: ~~(MATRIX_HEIGHT / 2), sprite: this.add.rectangle((~~(MATRIX_WIDTH / 2)) * (PIXEL_SIZE + PADDING), (~~(MATRIX_HEIGHT / 2)) * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, 0xff0000), color: ACTIVE_COLOR }
     }
 
     create() {
@@ -57,28 +56,6 @@ export class Game extends Scene {
             callback: this.calculateAnt,
             callbackScope: this
         })
-        this.ant.colorPicker = this.rexUI.add.colorPicker({
-            background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x888888),
-            svPalette: {
-                width: 100,
-                height: 100,
-            },
-
-            value: this.ant.color,
-            valuechangeCallback: (value: number) => {
-                this.ant.color = value
-            }
-        })
-
-        this.ant.colorPicker?.setPosition(window.innerWidth / 2, window.innerHeight / 2).layout().setScale(0)
-
-        this.ant.sprite.setInteractive().on('pointerdown', () => {
-            if (this.ant.colorPicker?.scaleX === 1) {
-                this.ant.colorPicker?.scaleDown(1000)
-            } else {
-                this.ant.colorPicker?.setScale(1).popUp(1000)
-            }
-        })
 
 
         this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
@@ -86,6 +63,10 @@ export class Game extends Scene {
 
             if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.SPACE) {
                 this.isPaused = !this.isPaused
+            }
+
+            if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.A) {
+                this.addAnt()
             }
 
         })
@@ -102,15 +83,47 @@ export class Game extends Scene {
 
     }
 
+    private addAnt() {
+        const newAnt: Ant = { direction: Direction.DOWN, x: ~~(MATRIX_WIDTH / 2), y: ~~(MATRIX_HEIGHT / 2), sprite: this.add.rectangle((~~(MATRIX_WIDTH / 2)) * (PIXEL_SIZE + PADDING), (~~(MATRIX_HEIGHT / 2)) * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, 0xff0000), color: ACTIVE_COLOR }
+        newAnt.colorPicker = this.rexUI.add.colorPicker({
+            background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x888888),
+            svPalette: {
+                width: 100,
+                height: 100,
+            },
+
+            value: newAnt.color,
+            valuechangeCallback: (value: number) => {
+                newAnt.color = value
+            }
+        })
+        newAnt.colorPicker?.setPosition(window.innerWidth / 2, window.innerHeight / 2).layout().setScale(0)
+
+        newAnt.sprite.setInteractive().on('pointerdown', () => {
+            for (const ant of this.ants) {
+                ant.colorPicker?.scaleDown(1000)
+            }
+
+            if (newAnt.colorPicker?.scaleX === 1) {
+                newAnt.colorPicker?.scaleDown(1000)
+            } else {
+                newAnt.colorPicker?.setScale(1).popUp(1000)
+            }
+        })
+
+        this.ants.push(newAnt)
+    }
+
     private calculateAnt() {
         if (this.isPaused) {
             return
         }
-        setAntDirection(this.ant, this.matrix[this.ant.y][this.ant.x])
-        swapColor(this.matrix[this.ant.y][this.ant.x], this.ant.color)
-        moveAnt(this.ant)
-
-        this.ant.sprite.x = this.ant.x * (PIXEL_SIZE + PADDING)
-        this.ant.sprite.y = this.ant.y * (PIXEL_SIZE + PADDING)
+        for (const ant of this.ants) {
+            setAntDirection(ant, this.matrix[ant.y][ant.x])
+            swapColor(this.matrix[ant.y][ant.x], ant.color)
+            moveAnt(ant)
+            ant.sprite.x = ant.x * (PIXEL_SIZE + PADDING)
+            ant.sprite.y = ant.y * (PIXEL_SIZE + PADDING)
+        }
     }
 }
