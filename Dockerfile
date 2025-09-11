@@ -25,6 +25,4 @@ ARG SERVER_PORT=3000
 ENV SERVER_PORT=${SERVER_PORT}
 # Expose port
 EXPOSE ${SERVER_PORT}
-
-# Run BusyBox httpd
-CMD ["static-web-server", "--port", ${SERVER_PORT}, "--root", "."]
+ENV SERVER_ROOT=.
