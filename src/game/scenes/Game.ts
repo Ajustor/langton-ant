@@ -2,6 +2,7 @@ import { Scene } from 'phaser'
 import { Ant, Cell, Direction } from '../type'
 import { moveAnt, setAntDirection, swapColor } from '../systems/langton'
 import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin'
+import { v4 } from 'uuid'
 
 
 const PADDING = 1
@@ -10,6 +11,7 @@ const ACTIVE_COLOR = 0x000000
 const INACTIVE_COLOR = 0xffffff
 
 const PIXEL_SIZE = 10
+const EXPLOSION_RADIUS = 10
 
 export const MATRIX_WIDTH = ~~(window.innerWidth / (PIXEL_SIZE))
 export const MATRIX_HEIGHT = ~~(window.innerHeight / (PIXEL_SIZE))
@@ -20,7 +22,7 @@ export class Game extends Scene {
     private matrix: Cell[][]
     private isPaused = false
 
-    private ants: Ant[] = []
+    private ants: Map<string, Ant> = new Map()
 
     constructor() {
         super('Game')
@@ -100,9 +102,7 @@ export class Game extends Scene {
         newAnt.colorPicker?.setPosition(window.innerWidth / 2, window.innerHeight / 2).layout().setScale(0)
 
         newAnt.sprite.setInteractive().on('pointerdown', () => {
-            for (const ant of this.ants) {
-                ant.colorPicker?.scaleDown(1000)
-            }
+            this.closeColorPickers()
 
             if (newAnt.colorPicker?.scaleX === 1) {
                 newAnt.colorPicker?.scaleDown(1000)
@@ -111,19 +111,52 @@ export class Game extends Scene {
             }
         })
 
-        this.ants.push(newAnt)
+        this.ants.set(v4(), newAnt)
+    }
+
+    private closeColorPickers() {
+        for (const ant of this.ants.values()) {
+            ant.colorPicker?.scaleDown(1000)
+        }
+    }
+
+    private checkCollisions() {
+        for (const [key, ant] of this.ants.entries()) {
+            const otherAntsAtSamePlace = [...this.ants.entries()].filter(([otherKey, otherAnt]) => otherKey !== key && otherAnt.x === ant.x && otherAnt.y === ant.y).map(([otherKey]) => otherKey)
+            let colorMix = ant.color
+            if (otherAntsAtSamePlace.length) {
+                this.ants.delete(key)
+                console.log('Explosion')
+                for (const otherAntKey of otherAntsAtSamePlace) {
+                    colorMix += (this.ants.get(otherAntKey)?.color || 0) % 0xffffff
+                    this.ants.delete(otherAntKey)
+                }
+
+                for (const row of this.matrix) {
+                    for (const cell of row) {
+                        if (cell.pixel) {
+                            if (cell.pixel.x > ant.sprite.x - EXPLOSION_RADIUS && cell.pixel.x < ant.sprite.x + EXPLOSION_RADIUS && cell.pixel.y > ant.sprite.y - EXPLOSION_RADIUS && cell.pixel.y < ant.sprite.y + EXPLOSION_RADIUS) {
+                                swapColor(cell, colorMix)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private calculateAnt() {
         if (this.isPaused) {
             return
         }
-        for (const ant of this.ants) {
+        for (const ant of this.ants.values()) {
             setAntDirection(ant, this.matrix[ant.y][ant.x])
             swapColor(this.matrix[ant.y][ant.x], ant.color)
             moveAnt(ant)
             ant.sprite.x = ant.x * (PIXEL_SIZE + PADDING)
             ant.sprite.y = ant.y * (PIXEL_SIZE + PADDING)
         }
+
+        this.checkCollisions()
     }
 }
