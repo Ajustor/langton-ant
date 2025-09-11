@@ -21,11 +21,10 @@ FROM joseluisq/static-web-server
 # Use the .dockerignore file to control what ends up inside the image!
 COPY --from=build /app/dist .
 
-ENV SERVER_PORT=3000
+ARG SERVER_PORT=3000
+ENV SERVER_PORT=${SERVER_PORT}
 # Expose port
-EXPOSE $SERVER_PORT
-
-RUN echo "Starting server on ${SERVER_PORT}"
+EXPOSE ${SERVER_PORT}
 
 # Run BusyBox httpd
-CMD ["static-web-server", "--port", $SERVER_PORT, "--root", "."]
+CMD ["static-web-server", "--port", ${SERVER_PORT}, "--root", "."]
