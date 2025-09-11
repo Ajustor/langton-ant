@@ -15,21 +15,15 @@ COPY . .
 # Build le projet
 RUN bun run build-nolog
 
-FROM busybox:1.35
-
-ARG PORT=3000
-ENV PORT=$PORT
-
-# Create a non-root user to own the files and run our server
-RUN adduser -D static
-USER static
-WORKDIR /home/static
+FROM joseluisq/static-web-server
 
 # Copy the static website
 # Use the .dockerignore file to control what ends up inside the image!
 COPY --from=build /app/dist .
 
-EXPOSE $PORT
+ENV SERVER_PORT 3000
+# Expose port
+EXPOSE $SERVER_PORT
 
 # Run BusyBox httpd
-CMD ["busybox", "httpd", "-f", "-v", "-p", $PORT]
+CMD ["static-web-server", "--port", $SERVER_PORT, "--root", "."]
