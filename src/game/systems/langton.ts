@@ -1,4 +1,3 @@
-import { MATRIX_HEIGHT, MATRIX_WIDTH } from '../scenes/Game'
 import { Ant, Cell, Direction } from '../type'
 
 export function swapColor(cell: Cell, newColor: number) {
@@ -14,7 +13,7 @@ export function setAntDirection(ant: Ant, cell: Cell) {
   }
 }
 
-export function moveAnt(ant: Ant) {
+export function moveAnt(ant: Ant, MATRIX_WIDTH: number, MATRIX_HEIGHT: number) {
   switch (ant.direction) {
     case Direction.LEFT:
       if (ant.x > 0) {

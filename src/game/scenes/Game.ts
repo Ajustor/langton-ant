@@ -3,18 +3,7 @@ import { Ant, Cell, Direction } from '../type'
 import { moveAnt, setAntDirection, swapColor } from '../systems/langton'
 import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin'
 import { v4 } from 'uuid'
-
-
-const PADDING = 1
-
-const ACTIVE_COLOR = 0x000000
-const INACTIVE_COLOR = 0xffffff
-
-const PIXEL_SIZE = 10
-const EXPLOSION_RADIUS = 5
-
-export const MATRIX_WIDTH = ~~(window.innerWidth / (PIXEL_SIZE))
-export const MATRIX_HEIGHT = ~~(window.innerHeight / (PIXEL_SIZE))
+import { MATRIX_HEIGHT, MATRIX_WIDTH, ACTIVE_COLOR, PIXEL_SIZE, PADDING, INACTIVE_COLOR, GAME_WIDTH, GAME_HEIGHT, EXPLOSION_RADIUS } from '../config'
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera
@@ -36,7 +25,7 @@ export class Game extends Scene {
         for (const y of this.matrix.keys()) {
             for (const x of this.matrix[y].keys()) {
                 const cell = this.matrix[y][x]
-                cell.pixel = this.add.rectangle(x * (PIXEL_SIZE + PADDING), y * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, cell.value ? cell.color : INACTIVE_COLOR)
+                cell.pixel = this.add.rectangle((x + (PADDING / 2)) * (PIXEL_SIZE + PADDING), (y + (PADDING / 2)) * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, cell.value ? cell.color : INACTIVE_COLOR)
                 cell.pixel.setInteractive().on('pointerdown', () => {
                     swapColor(cell, ACTIVE_COLOR)
                 })
@@ -86,7 +75,7 @@ export class Game extends Scene {
     }
 
     private addAnt() {
-        const newAnt: Ant = { direction: Direction.DOWN, x: ~~(MATRIX_WIDTH / 2), y: ~~(MATRIX_HEIGHT / 2), sprite: this.add.rectangle((~~(MATRIX_WIDTH / 2)) * (PIXEL_SIZE + PADDING), (~~(MATRIX_HEIGHT / 2)) * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, 0xff0000), color: ACTIVE_COLOR }
+        const newAnt: Ant = { direction: Direction.DOWN, x: ~~(MATRIX_WIDTH / 2), y: ~~(MATRIX_HEIGHT / 2), sprite: this.add.rectangle((~~(MATRIX_WIDTH / 2) + PADDING / 2) * (PIXEL_SIZE + PADDING), (~~(MATRIX_HEIGHT / 2) + PADDING / 2) * (PIXEL_SIZE + PADDING), PIXEL_SIZE, PIXEL_SIZE, 0xff0000), color: ACTIVE_COLOR }
         newAnt.colorPicker = this.rexUI.add.colorPicker({
             background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x888888),
             svPalette: {
@@ -99,7 +88,7 @@ export class Game extends Scene {
                 newAnt.color = value
             }
         })
-        newAnt.colorPicker?.setPosition(window.innerWidth / 2, window.innerHeight / 2).layout().setScale(0)
+        newAnt.colorPicker?.setPosition(GAME_WIDTH / 2, GAME_HEIGHT / 2).layout().setScale(0)
 
         newAnt.sprite.setInteractive().on('pointerdown', () => {
             this.closeColorPickers()
@@ -126,8 +115,10 @@ export class Game extends Scene {
             let colorMix = ant.color
             if (otherAntsAtSamePlace.length) {
                 this.ants.delete(key)
+                ant.sprite.destroy()
                 for (const otherAntKey of otherAntsAtSamePlace) {
                     colorMix += (this.ants.get(otherAntKey)?.color || 0) % 0xffffff
+                    this.ants.get(otherAntKey)?.sprite.destroy()
                     this.ants.delete(otherAntKey)
                 }
 
@@ -140,6 +131,7 @@ export class Game extends Scene {
                             )
                             if (distance <= EXPLOSION_RADIUS) {
                                 swapColor(cell, colorMix)
+                                cell.value = 1
                             }
                         }
                     }
@@ -155,9 +147,9 @@ export class Game extends Scene {
         for (const ant of this.ants.values()) {
             setAntDirection(ant, this.matrix[ant.y][ant.x])
             swapColor(this.matrix[ant.y][ant.x], ant.color)
-            moveAnt(ant)
-            ant.sprite.x = ant.x * (PIXEL_SIZE + PADDING)
-            ant.sprite.y = ant.y * (PIXEL_SIZE + PADDING)
+            moveAnt(ant, MATRIX_WIDTH, MATRIX_HEIGHT)
+            ant.sprite.x = (ant.x + PADDING / 2) * (PIXEL_SIZE + PADDING)
+            ant.sprite.y = (ant.y + PADDING / 2) * (PIXEL_SIZE + PADDING)
         }
 
         this.checkCollisions()

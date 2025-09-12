@@ -5,15 +5,14 @@ import { MainMenu } from './scenes/MainMenu'
 import { AUTO, Game } from 'phaser'
 import { Preloader } from './scenes/Preloader'
 import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin'
-
-
+import { GAME_HEIGHT, GAME_WIDTH } from './config'
 
 // Find out more information about the Game Config at:
 // https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
 const config: Phaser.Types.Core.GameConfig = {
     type: AUTO,
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
     parent: 'game-container',
     backgroundColor: '#028af8',
     scale: {
