@@ -11,7 +11,7 @@ const ACTIVE_COLOR = 0x000000
 const INACTIVE_COLOR = 0xffffff
 
 const PIXEL_SIZE = 10
-const EXPLOSION_RADIUS = 10
+const EXPLOSION_RADIUS = 5
 
 export const MATRIX_WIDTH = ~~(window.innerWidth / (PIXEL_SIZE))
 export const MATRIX_HEIGHT = ~~(window.innerHeight / (PIXEL_SIZE))
@@ -61,7 +61,7 @@ export class Game extends Scene {
 
 
         this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
-
+            this.closeColorPickers()
 
             if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.SPACE) {
                 this.isPaused = !this.isPaused
@@ -126,16 +126,19 @@ export class Game extends Scene {
             let colorMix = ant.color
             if (otherAntsAtSamePlace.length) {
                 this.ants.delete(key)
-                console.log('Explosion')
                 for (const otherAntKey of otherAntsAtSamePlace) {
                     colorMix += (this.ants.get(otherAntKey)?.color || 0) % 0xffffff
                     this.ants.delete(otherAntKey)
                 }
 
-                for (const row of this.matrix) {
-                    for (const cell of row) {
+                for (const y of this.matrix.keys()) {
+                    for (const x of this.matrix[y].keys()) {
+                        const cell = this.matrix[y][x]
                         if (cell.pixel) {
-                            if (cell.pixel.x > ant.sprite.x - EXPLOSION_RADIUS && cell.pixel.x < ant.sprite.x + EXPLOSION_RADIUS && cell.pixel.y > ant.sprite.y - EXPLOSION_RADIUS && cell.pixel.y < ant.sprite.y + EXPLOSION_RADIUS) {
+                            const distance = Math.sqrt(
+                                Math.pow(x - ant.x, 2) + Math.pow(y - ant.y, 2)
+                            )
+                            if (distance <= EXPLOSION_RADIUS) {
                                 swapColor(cell, colorMix)
                             }
                         }
